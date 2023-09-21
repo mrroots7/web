@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Usuários</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/md5/2.3.0/md5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@dicebear/avatars-jdenticon-sprites"></script>
+    <style>
+        /* Estilo da barra lateral */
+        .sidebar {
+            width: 0;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #2f2841;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+            z-index: 1;
+        }
+
+        .sidebar.active {
+            width: 250px;
+        }
+
+        .sidebar a {
+            padding: 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #fff;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #555;
+        }
+
+        .user-info {
+            padding: 20px;
+            font-size: 17px;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .user-info p {
+            margin-bottom: 10px;
+        }
+
+        .user-info .logout-button {
+            cursor: pointer;
+            color: #ff0000;
+        }
+
+        /* Estilo do botão para abrir a barra lateral com a cor branca */
+        .menu-button {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            font-size: 30px;
+            color: #ff0000;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        /* Defina a cor de fundo igual à página de login */
+        body {
+            background-color: #201b2c;
+        }
+
+        /* Estilo do conteúdo principal */
+        .content {
+            margin-left: 0;
+            transition: margin-left 0.5s;
+        }
+
+        .sidebar.active + .content {
+            margin-left: 250px;
+        }
+
+        /* Estilo da tabela de usuários */
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            background-color: #fff;
+            max-width: 100%; /* Definindo a largura máxima da tabela */
+            transition: transform 0.5s;
+        }
+
+        .user-table th,
+        .user-table td {
+            padding: 8px; /* Reduzi o padding para diminuir o tamanho da tabela */
+            text-align: center;
+            color: #333;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .user-table th {
+            background-color: #2f2841;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .user-table tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .user-table tbody tr:hover {
+            background-color: #ddd;
+        }
+
+        /* Estilo para o cabeçalho da página "Lista de Usuários" */
+        .header h1 {
+            color: #fff;
+        }
+
+        /* Efeito de translação para a tabela quando a barra lateral está aberta */
+        .table-opened {
+            transform: translateX(5px);
+        }
+
+        /* Estilo da caixa de pesquisa */
+        .search-box {
+            float: right;
+            margin-top: -40px; /* Ajuste a margem superior conforme necessário */
+            position: relative;
+        }
+
+        .search-box input[type="text"] {
+            padding: 5px 25px 5px 5px; /* Ajuste o padding para posicionar o ícone à direita */
+            border: none;
+            border-radius: 5px;
+            outline: none;
+            font-size: 14px;
+            width: 150px; /* Ajuste a largura conforme necessário */
+        }
+
+        .search-box i {
+            font-size: 16px;
+            position: absolute;
+            top: 50%;
+            right: 5px;
+            transform: translateY(-50%);
+        }
+
+        /* Estilo para o modal de confirmação */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.5);
+            width: 300px;
+        }
+
+        .modal h2 {
+            color: #333;
+        }
+
+        .modal p {
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .modal-button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            font-size: 16px;
+            border: none;
+        }
+
+        .modal-button.green {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .modal-button.red {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .modal-button.green:hover, .modal-button.red:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra lateral -->
+    <div class="sidebar" id="mySidebar">
+        <!-- Links da barra lateral -->
+        <a href="/dashboard">Início</a>
+        <a href="/ferramentas">Ferramentas</a>
+        <a href="/suporte">Suporte</a>
+        <a href="/planos">Planos</a>
+        <a href="/account">Conta</a>
+        <a href="/admin">Admin</a>
+        <div class="user-info" style="margin-top: 340px;">
+            <p><%= username %></p>
+            <span class="logout-button" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</span>
+        </div>
+    </div>
+
+    <!-- Botão para abrir a barra lateral -->
+    <div class="menu-button" onclick="toggleSidebar()">&#9776;</div>
+
+    <!-- Conteúdo principal -->
+    <div class="content" id="content">
+        <!-- Cabeçalho -->
+        <div class="header">
+            <h1>Lista de Usuários</h1>
+        </div>
+
+        <!-- Caixa de pesquisa -->
+        <div class="search-box">
+            <input type="text" placeholder="Pesquisar..." id="searchInput">
+            <i class="fas fa-search" onclick="pesquisarUsuario()"></i>
+        </div>
+        
+        <!-- Tabela para exibir a lista de usuários -->
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>Usuário</th>
+                    <th>Senha</th>
+                    <th>Validade</th>
+                    <th>Tempo Restante</th>
+                    <th>Apikey</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Os dados dos usuários serão preenchidos dinamicamente aqui -->
+                <% users.forEach((user) => { %>
+                    <tr>
+                        <td><%= user.username %></td>
+                        <td><%= user.password %></td>
+                        <td><%= user.validity ? user.validity.toDateString() : 'Indefinida' %></td>
+                        <td><%= user.daysRemaining %></td>
+                        <td><%= user.apiKey %></td>
+                        <td>
+                            <button class="icon-button" onclick="editarUsuario('<%= user.username %>')" data-tooltip="Editar"><i class="fas fa-edit"></i></button>
+                            <i class="fas fa-trash delete-icon" data-username="<%= user.username %>" data-tooltip="Excluir"></i>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Função para exibir o modal de confirmação de exclusão
+        function showDeleteModal(username) {
+            const deleteStatus = document.getElementById('deleteStatus');
+            deleteStatus.innerHTML = ''; // Limpe qualquer conteúdo anterior
+
+            const modal = document.getElementById('deleteModal');
+            modal.style.display = 'block';
+
+            // Adicione uma mensagem de confirmação no modal
+            const confirmationMessage = document.createElement('p');
+            confirmationMessage.textContent = `Tem certeza de que deseja excluir a conta de ${username}?`;
+            deleteStatus.appendChild(confirmationMessage);
+
+            // Adicione botões de confirmação e cancelamento no modal
+            const confirmButton = document.createElement('button');
+            confirmButton.textContent = 'Confirmar';
+            confirmButton.className = 'modal-button red';
+            confirmButton.onclick = () => {
+                confirmDelete(username);
+                modal.style.display = 'none'; // Oculte o modal após a confirmação
+            };
+
+            const cancelButton = document.createElement('button');
+            cancelButton.textContent = 'Cancelar';
+            cancelButton.className = 'modal-button';
+            cancelButton.onclick = () => {
+                modal.style.display = 'none'; // Oculte o modal ao cancelar
+            };
+
+            deleteStatus.appendChild(confirmButton);
+            deleteStatus.appendChild(cancelButton);
+        }
+
+        // Função para cancelar a exclusão
+        function cancelDelete() {
+            const modal = document.getElementById('deleteModal');
+            modal.style.display = 'none';
+        }
+
+        // Função para confirmar e executar a exclusão do usuário
+        function confirmDelete(username) {
+            // Fazer uma solicitação POST para a rota de exclusão do usuário
+            fetch('/delete-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ usernameToDelete: username }),
+            })
+            .then((response) => {
+                if (response.ok) {
+                    // Atualize a página após a exclusão
+                    location.reload();
+                } else {
+                    alert('Erro ao excluir a conta.');
+                }
+            })
+            .catch((error) => {
+                console.error('Erro ao excluir a conta:', error);
+                alert('Erro ao excluir a conta.');
+            });
+        }
+
+        // Função para abrir/fechar a barra lateral
+        function toggleSidebar() {
+            const sidebar = document.getElementById('mySidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Função para fazer logout
+        function logout() {
+            // Coloque aqui a lógica para efetuar o logout, como redirecionar para a página de login ou enviar uma solicitação ao servidor para encerrar a sessão.
+            // Após o logout, redirecione para a página de login com uma mensagem de sucesso.
+            window.location.href = '/?logout=success'; // Redireciona para a página de login com a mensagem de sucesso
+        }        
+    </script>
+</body>
+</html>

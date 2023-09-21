@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Usuário</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- Inclua os links CSS e scripts necessários aqui -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Estilo da barra lateral (mesmo estilo da página users.ejs) */
+        .sidebar {
+            width: 0;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #2f2841;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+            z-index: 1;
+        }
+
+        .sidebar.active {
+            width: 250px;
+        }
+
+        .sidebar a {
+            padding: 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #fff;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #555;
+        }
+
+        .user-info {
+            padding: 20px;
+            font-size: 17px;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .user-info p {
+            margin-bottom: 10px;
+        }
+
+        .user-info .logout-button {
+            cursor: pointer;
+            color: #fff;
+        }
+
+        /* Estilo do botão para abrir a barra lateral (mesmo estilo da página users.ejs) */
+        .menu-button {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            font-size: 30px;
+            color: #fff;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        /* Restante do estilo CSS */
+
+        /* Defina a cor de fundo igual à página de login (mesmo estilo da página users.ejs) */
+        body {
+            background-color: #201b2c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Noto Sans', sans-serif;
+        }
+
+        /* Estilo da caixa de edição de informações */
+        .edit-user-form {
+            width: 100%; /* Defina o tamanho máximo do box */
+            max-width: 400px; /* Defina a largura máxima desejada */
+            background-color: #2f2841; /* Cor de fundo igual à página de login */
+            color: #fff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            margin: 0 auto; /* Centraliza o box horizontalmente */
+            text-align: center; /* Centraliza o conteúdo horizontalmente */
+            animation: pulse 2s infinite; /* Animação de pulso na borda */
+        }
+
+        /* Estilo dos campos de edição de informações */
+        .form-group {
+            margin-bottom: 20px; /* Espaçamento entre os grupos de campos */
+        }
+
+        .form-group label {
+            font-size: 20px;
+            display: block;
+            margin-bottom: 20px; /* Espaçamento entre a etiqueta e o campo de entrada */
+            text-align: left;
+        }
+
+        .form-group .input-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .form-group .input-container input[type="text"],
+        .form-group .input-container input[type="password"] {
+            width: 100%; /* Largura igual para ambos os campos com um pequeno espaçamento entre eles */
+            padding: 10px;
+            border-radius: 15px;
+            background-color: #f0ffffde;
+            color: #000;
+            border: none;
+            outline: none;
+        }
+
+        .button-group {
+            margin-top: 40px; /* Espaçamento entre os campos de entrada e os botões */
+        }
+
+        .back-button,
+        .save-button {
+            background-color: #4caf50;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 10px;
+            margin-right: 10px; /* Espaçamento entre os botões */
+        }
+
+        .back-button:hover,
+        .save-button:hover {
+            background-color: #45a049;
+        }
+        .success-message {
+            color: #4caf50; /* Cor verde */
+            font-weight: bold;
+        }
+
+        /* Estilo para o cabeçalho da página "Lista de Usuários" */
+        .header h1 {
+            color: #fff;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Barra lateral (mesmo código da página users.ejs) -->
+    <div class="sidebar" id="mySidebar">
+        <a href="/dashboard">Início</a>
+        <a href="/users">Usuários</a>
+        <a href="/suporte">Suporte</a>
+        <a href="/planos">Planos</a>
+        <a href="/account">Conta</a>
+        <a href="/admin">Admin</a>
+        <div class="user-info" style="margin-top: 360px;">
+            <span class="logout-button" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</span>
+        </div>
+    </div>
+
+    <!-- Botão para abrir a barra lateral (mesmo código da página users.ejs) -->
+    <div class="menu-button" onclick="toggleSidebar()">&#9776;</div>
+
+    <!-- Conteúdo principal (mesmo código da página users.ejs) -->
+    <div class="content" id="content">
+        <!-- Cabeçalho -->
+        <div class="header">
+            <h1>Editar Usuário:</h1>
+        </div>
+        <!-- Mensagem de sucesso -->
+        <% const successMessage = locals.successMessage || ''; %>
+        <% if (successMessage) { %>
+            <div class="alert alert-success">
+                <%= successMessage %>
+            </div>
+        <% } %>
+    
+        <!-- Mensagem de erro -->
+        <% const errorMessage = locals.errorMessage || ''; %>
+        <% if (errorMessage) { %>
+            <div class="alert alert-danger">
+                <%= errorMessage %>
+            </div>
+        <% } %>
+
+        <!-- Formulário de edição de usuário -->
+        <form class="edit-user-form" method="post" action="/update-user">
+            <!-- Nome de Usuário (não editável) -->
+            <div class="form-group">
+                <label for="username">Nome de Usuário</label>
+                <div class="input-container">
+                    <input type="text" id="username" name="username" value="<%= user.username %>" readonly>
+                </div>
+            </div>
+
+            <!-- Senha (não editável, você pode ocultá-la se preferir) -->
+            <div class="form-group">
+                <label for="password">Senha</label>
+                <div class="input-container">
+                    <input type="password" id="password" name="password" value="<%= user.password %>" readonly>
+                </div>
+            </div>
+
+            <!-- Dias Restantes (não editável) -->
+            <div class="form-group">
+                <label for="daysRemaining">Dias Restantes</label>
+                <div class="input-container">
+                    <input type="text" id="daysRemaining" name="daysRemaining" value="<%= user.daysRemaining %>" readonly>
+                </div>
+            </div>            
+
+            <!-- API Key (editável) -->
+            <div class="form-group">
+                <label for="apiKey">API Key</label>
+                <div class="input-container">
+                    <input type="text" id="apiKey" name="apiKey" value="<%= user.apiKey %>">
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="back-button" onclick="goBack()">Voltar</button>
+                <button class="save-button" type="submit">Salvar</button>
+            </div>
+        </form>
+        <div class="success-message">
+            <!-- Aqui a mensagem de sucesso será exibida -->
+        </div>
+    </div>
+
+    <script>
+        // Função para abrir/fechar a barra lateral (mesmo código da página users.ejs)
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const content = document.getElementById('content');
+            
+            sidebar.classList.toggle('active');
+            
+            if (sidebar.classList.contains('active')) {
+                content.style.marginLeft = '250px';
+            } else {
+                content.style.marginLeft = '0';
+            }
+        }
+
+                // Variável para rastrear campos editados
+         const editedFields = {};
+
+// Função para marcar um campo como editado
+        function markFieldAsEdited(field) {
+            editedFields[field.name] = field.value;
+        }
+
+        // Função para verificar se um campo foi editado
+        function isFieldEdited(fieldName) {
+            return fieldName in editedFields;
+        }
+
+        // Função para fazer logout (mesmo código da página users.ejs)
+        function logout() {
+            window.location.href = '/?logout=success';
+        }
+
+        function goBack() {
+            window.history.back(); // Esta função volta para a página anterior no histórico do navegador
+        }
+
+
+        // Verifica se há uma mensagem de sucesso e a exibe
+        document.addEventListener('DOMContentLoaded', function () {
+            const successMessage = document.querySelector('.alert-success');
+            if (successMessage) {
+                const successDiv = document.querySelector('.success-message');
+                successDiv.textContent = successMessage.textContent;
+                successDiv.style.display = 'block';
+                setTimeout(function () {
+                    successDiv.style.display = 'none';
+                }, 5000); // Esconde a mensagem de sucesso após 5 segundos
+            }
+        });
+    </script>
+</body>
+</html>

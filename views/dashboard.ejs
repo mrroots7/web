@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Principal</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/md5/2.3.0/md5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@dicebear/avatars-jdenticon-sprites"></script>
+    <style>
+        /* Estilo da barra lateral */
+        .sidebar {
+            width: 0;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #2f2841; /* Cor de fundo igual à página de login */
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+            z-index: 1;
+        }
+
+        .sidebar.active {
+            width: 250px;
+        }
+
+        .sidebar a {
+            padding: 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #fff;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #555;
+        }
+
+        .user-info {
+            padding: 20px;
+            font-size: 17px;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .user-info p {
+            margin-bottom: 10px;
+        }
+
+        .user-info .logout-button {
+            cursor: pointer;
+            color: #fff;
+        }
+
+        /* Estilo do botão para abrir a barra lateral com a cor branca */
+        .menu-button {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            font-size: 30px;
+            color: #fff;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        /* Restante do estilo CSS */
+
+        /* Defina a cor de fundo igual à página de login */
+        body {
+            background-color: #201b2c; /* Cor de fundo igual à página de login */
+        }
+
+        .box {
+            width: 300px;
+            background-color: #2f2841; /* Cor de fundo igual à página de login */
+            color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            transition: box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+            margin: 0 auto; /* Centraliza o box horizontalmente */
+        }
+
+        /* Estilo de botão degrade com efeito de brilho */
+        .botao-degrade {
+            --border-radius: 3px;
+            --border-width: 3px;
+            appearance: none;
+            position: relative;
+            padding: 0.8em 1.5em;
+            border: 0;
+            text-decoration: none;
+            background-color: transparent;
+            font-family: 'open_sansregular';
+            font-size: 16px;
+            font-weight: 500;
+            color: #fff;
+            z-index: 2;
+        }
+
+        .botao-degrade::after {
+            --m-i: linear-gradient(#000, #000);
+            --m-o: content-box, padding-box;
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            padding: var(--border-width);
+            border-radius: var(--border-radius);
+            background-image: conic-gradient(
+                #ff00c8,
+                #ff00bf,
+                #ff00ae,
+                #ff008c
+            );
+            -webkit-mask-image: var(--m-i), var(--m-i);
+            mask-image: var(--m-i), var(--m-i);
+            -webkit-mask-origin: var(--m-o);
+            mask-origin: var(--m-o);
+            -webkit-mask-clip: var(--m-o);
+            mask-composite: exclude;
+            -webkit-mask-composite: destination-out;
+            filter: hue-rotate(0);
+            animation: rotate-hue linear 500ms infinite;
+        }
+
+        .botao-degrade,
+        .botao-degrade::after {
+            box-sizing: border-box;
+        }
+
+        .botao-degrade:active {
+            --border-width: 5px;
+        }
+
+        @keyframes rotate-hue {
+            to {
+                filter: hue-rotate(1turn);
+            }
+        }
+
+        /* CSS para ajustar o espaço à esquerda do conteúdo principal */
+        .content {
+            margin-left: 0; /* Espaço à esquerda padrão quando a barra lateral estiver fechada */
+            transition: margin-left 0.5s; /* Adiciona uma transição suave para o espaço à esquerda */
+        }
+
+        .sidebar.active + .content {
+            margin-left: 250px; /* Espaço à esquerda quando a barra lateral estiver aberta */
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra lateral -->
+    <div class="sidebar" id="mySidebar">
+        <!-- Adicione outras opções aqui -->
+        <a href="/dashboard">Início</a>
+        <a href="/ferramentas">Ferramentas</a>
+        <a href="/suporte">Suporte</a>
+        <a href="/planos">Planos</a>
+        <a href="/account">Conta</a>
+        <% if (typeof isAdmin !== 'undefined' && isAdmin) { %>
+            <li><a href="/admin">Admin</a></li>
+        <% } %>
+        <div class="user-info" style="margin-top: 420px;">
+            <p><%= username %></p>
+            <span class="logout-button" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</span>
+        </div>
+    </div>
+
+    <!-- Botão para abrir a barra lateral -->
+    <div class="menu-button" onclick="toggleSidebar()">&#9776;</div>
+
+    <!-- Conteúdo principal -->
+    <div class="content" id="content">
+        <div class="box">
+            <!-- Conteúdo do painel aqui -->
+            <h1>Bem-vindo, <%= username %>!</h1>
+            <p>Este é o painel de controle.</p>
+            <p>Seu IP: <%= userIp %></p>
+            <p>Localização: <%= userLocation %></p>
+            <p>Informações do Dispositivo:</p>
+            <ul>
+                <li>Nome do navegador: <%= userAgentInfo.browser %></li>
+                <li>Versão do navegador: <%= userAgentInfo.version %></li>
+                <li>Sistema operacional: <%= userAgentInfo.os %></li>
+                <li>Plataforma: <%= userAgentInfo.platform %></li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/ipify@1.0.6/dist/ipify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // Função para abrir/fechar a barra lateral
+        function toggleSidebar() {
+            const sidebar = document.getElementById('mySidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Função para fazer logout
+        function logout() {
+            // Coloque aqui a lógica para efetuar o logout, como redirecionar para a página de login ou enviar uma solicitação ao servidor para encerrar a sessão.
+            // Após o logout, redirecione para a página de login com uma mensagem de sucesso.
+            window.location.href = '/?logout=success'; // Redireciona para a página de login com a mensagem de sucesso
+        }
+
+        // Função para obter o IP do usuário e a localização
+        async function getUserIPAndLocation() {
+            try {
+                const ip = await ipify({ useIPv6: false }); // Obtenha o IP do usuário usando a biblioteca ipify
+                const response = await axios.get(`https://ipinfo.io/${ip}/json`); // Obtenha informações de localização usando ipinfo.io
+                const location = `${response.data.city}, ${response.data.region}, ${response.data.country}`;
+                
+                // Atualize os elementos HTML com o IP e a localização
+                document.getElementById('userIp').textContent = `Seu IP: ${ip}`;
+                document.getElementById('userLocation').textContent = `Localização: ${location}`;
+            } catch (error) {
+                console.error('Erro ao obter informações de IP e localização:', error);
+                // Em caso de erro, você pode definir mensagens de erro ou lidar com o erro de outra forma
+                document.getElementById('userIp').textContent = `Erro ao obter o IP do usuário.`;
+                document.getElementById('userLocation').textContent = `Erro ao obter a localização.`;
+            }
+        }
+
+        // Chame a função para obter o IP e a localização quando a página carregar
+        window.addEventListener('load', getUserIPAndLocation);
+    </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Conta</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <!-- Barra de navegação -->
+    <nav>
+        <ul>
+            <li><a href="/dashboard">Início</a></li>
+            <li><a href="/ferramentas">Ferramentas</a></li>
+            <li><a href="/suporte">Suporte</a></li>
+            <li><a href="/planos">Planos</a></li>
+            <li><a href="/perfil">Conta</a></li>
+        </ul>
+    </nav>
+
+    <!-- Conteúdo principal -->
+    <div class="container">
+        <h1>Minha Conta</h1>
+        <div class="account-info">
+            <h1>Conta de <%= username %></h1>
+            <p>API Key: <%= apiKey %></p>
+            <p>Validade: <%= validity %></p>
+            <p>Dias de Acesso Restantes: <span id="daysRemaining"></span></p>
+        </div>
+    </div>
+
+    <script>
+        // Função para carregar informações da conta do usuário
+        async function loadAccountInfo() {
+            try {
+                // Faça uma solicitação para obter informações da conta do usuário
+                const response = await axios.get('/api/account'); // Substitua '/api/account' pelo endpoint correto
+
+                const { apiKey, validity, daysRemaining } = response.data;
+
+                // Atualize os elementos HTML com as informações da conta
+                document.getElementById('apiKey').textContent = apiKey;
+                document.getElementById('validity').textContent = validity;
+                document.getElementById('daysRemaining').textContent = daysRemaining;
+            } catch (error) {
+                console.error('Erro ao carregar informações da conta:', error);
+            }
+        }
+
+        // Chame a função para carregar informações da conta quando a página carregar
+        window.addEventListener('load', loadAccountInfo);
+    </script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!-- admin.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Administração</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/md5/2.3.0/md5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@dicebear/avatars-jdenticon-sprites"></script>
+    <style>
+        /* Estilo da barra lateral */
+        .sidebar {
+            width: 0;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #2f2841; /* Cor de fundo igual à página de login */
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+            z-index: 1;
+        }
+
+        .sidebar.active {
+            width: 250px;
+        }
+
+        .sidebar a {
+            padding: 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #fff;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #555;
+        }
+
+        .user-info {
+            padding: 20px;
+            font-size: 17px;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .user-info p {
+            margin-bottom: 10px;
+        }
+
+        .user-info .logout-button {
+            cursor: pointer;
+            color: #ff0000;
+        }
+
+        /* Estilo do botão para abrir a barra lateral com a cor branca */
+        .menu-button {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            font-size: 30px;
+            color: #ff0000;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        /* Restante do estilo CSS */
+
+        /* Defina a cor de fundo igual à página de login */
+        body {
+            background-color: #201b2c; /* Cor de fundo igual à página de login */
+        }
+
+        /* Estilo da caixa de administração com borda circular */
+        .admin-options {
+            width: 300px;
+            background-color: #2f2841; /* Cor de fundo igual à página de login */
+            color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            margin: 0 auto; /* Centraliza o box horizontalmente */
+            text-align: center; /* Centraliza o conteúdo horizontalmente */
+            animation: pulse 2s infinite; /* Animação de pulso na borda */
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.02);
+            }
+        }
+
+        /* Estilo dos botões com efeito de pulsação, brilho e movimento ao passar o mouse */
+        .admin-button {
+            background-color: transparent;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            margin: 10px 0;
+            padding: 10px 20px;
+            position: relative;
+            overflow: hidden;
+            animation: pulse 2s infinite, glow 2s alternate infinite;
+            transition: transform 0.2s; /* Efeito de movimento ao passar o mouse */
+        }
+
+        /* Animação de brilho */
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            }
+            100% {
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.9);
+            }
+        }
+
+        /* CSS para ajustar o espaço à esquerda do conteúdo principal */
+        .content {
+            margin-left: 0; /* Espaço à esquerda padrão quando a barra lateral estiver fechada */
+            transition: margin-left 0.5s; /* Adiciona uma transição suave para o espaço à esquerda */
+        }
+
+        .sidebar.active + .content {
+            margin-left: 250px; /* Espaço à esquerda quando a barra lateral estiver aberta */
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra lateral -->
+    <div class="sidebar" id="mySidebar">
+        <!-- Adicione outras opções aqui -->
+        <a href="/dashboard">Início</a>
+        <a href="/ferramentas">Ferramentas</a>
+        <a href="/suporte">Suporte</a>
+        <a href="/planos">Planos</a>
+        <a href="/account">Conta</a>
+        <a href="/admin">Admin</a>
+        <div class="user-info" style="margin-top: 340px;">
+            <p><%= username %></p>
+            <span class="logout-button" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</span>
+        </div>
+    </div>
+
+    <!-- Botão para abrir a barra lateral -->
+    <div class="menu-button" onclick="toggleSidebar()">&#9776;</div>
+
+    <!-- Conteúdo principal -->
+    <div class="content" id="content">
+        <div class="box admin-options">
+            <!-- Conteúdo da página de administração aqui -->
+            <h1>Painel de Administração</h1>
+            <!-- Botões de administração com efeito de pulsação, brilho e movimento ao passar o mouse -->
+            <button class="admin-button" onclick="createAccount()">Criar Login</button>
+            <button class="admin-button" onclick="viewUsers()">Lista de Usuários</button>
+            <button class="admin-button" onclick="viewLogs()">Logs do Site</button>
+        </div>
+    </div>
+
+    <script>
+        // Função para abrir/fechar a barra lateral
+        function toggleSidebar() {
+            const sidebar = document.getElementById('mySidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Função para fazer logout
+        function logout() {
+            // Coloque aqui a lógica para efetuar o logout, como redirecionar para a página de login ou enviar uma solicitação ao servidor para encerrar a sessão.
+            // Após o logout, redirecione para a página de login com uma mensagem de sucesso.
+            window.location.href = '/?logout=success'; // Redireciona para a página de login com a mensagem de sucesso
+        }
+
+        // Função para criar contas
+        function createAccount() {
+            // Redirecione para a página de criação de usuário com o parâmetro admin=true
+            window.location.href = '/create-users?admin=true';
+        }
+
+        // Função hipotética para ver a lista de usuários
+        function viewUsers() {
+            // Redirecione para a página de lista de usuários
+            window.location.href = '/users';
+        }
+
+        // Função hipotética para ver logs do site
+        function viewLogs() {
+            // Implemente a lógica para ver logs do site aqui
+            alert('Função de ver logs do site');
+        }
+    </script>
+</body>
+</html>

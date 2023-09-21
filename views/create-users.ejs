@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Conta</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/md5/2.3.0/md5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@dicebear/avatars-jdenticon-sprites"></script>
+    <style>
+        /* Estilo da barra lateral */
+        .sidebar {
+            width: 0;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #2f2841;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+            z-index: 1;
+        }
+
+        .sidebar.active {
+            width: 250px;
+        }
+
+        .sidebar a {
+            padding: 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #ffffff;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #555;
+        }
+
+        .user-info {
+            padding: 20px;
+            font-size: 17px;
+            color:  #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .user-info p {
+            margin-bottom: 10px;
+        }
+
+        .user-info .logout-button {
+            cursor: pointer;
+            color: #ff0000;
+        }
+
+        /* Estilo do botão para abrir a barra lateral com a cor branca */
+        .menu-button {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            font-size: 30px;
+            color: #ff0000;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        /* Estilo do fundo escuro */
+        body {
+            background-color: #201b2c;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Estilo dos campos de edição de informações */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            font-size: 20px;
+            display: block;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group .input-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .form-group .input-container input[type="text"],
+        .form-group .input-container input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 15px;
+            background-color: #00ff55de;
+            color: #000;
+            border: none;
+            outline: none;
+        }
+
+        .button-group {
+            margin-top: 40px;
+        }
+
+        /* Estilo das divs dos botões */
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        /* CSS para ajustar o espaço à esquerda do conteúdo principal */
+        .content {
+            margin-left: 0;
+            transition: margin-left 0.5s;
+        }
+
+        .sidebar.active + .content {
+            margin-left: 250px;
+        }
+
+        /* Estilo da caixa de admin-options */
+        .box.admin-options {
+            background-color: #2f2841;
+            color: #ffffff;
+            border-radius: 25px;
+            padding: 20px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
+            margin: 20px auto;
+            text-align: center;
+            max-width: 400px;
+            transition: background-color 0.3s;
+        }
+
+        /* Estilo da caixa de admin-options */
+        .admin-options {
+            background-color: #2f2841;
+            color: #ffffff;
+            border-radius: 25px;
+            padding:40px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
+            margin: 0 auto;
+            text-align: center;
+            max-width: 400px;
+            transition: background-color 0.3s;
+        }
+
+        /* Estilo para os campos de entrada dentro da caixa */
+        .admin-options .form-group {
+            margin-bottom: 20px;
+        }
+
+        .admin-options .form-group label {
+            font-size: 20px;
+            display: block;
+            margin-bottom: 10px;
+            text-align: left;
+            color: #fff;
+        }
+
+        .admin-options .form-group .input-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .admin-options .form-group input[type="text"],
+        .admin-options .form-group input[type="password"],
+        .admin-options .form-group input[type="date"] {
+            width: 95%;
+            padding: 10px;
+            border-radius: 15px;
+            background-color: #f7ffdcde;
+            color: #000;
+            border: none;
+            outline: none;
+        }
+
+        /* Estilo dos botões "Criar Conta" e "Teste Grátis" com efeito de brilho */
+        .button-container button {
+            width: 150px;
+            padding: 15px;
+            border-radius: 55px;
+            background-color: #000000;
+            color: #90e421;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            margin-bottom: 15px;
+            margin-top: 10px;
+            transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
+            font-size: 20px;
+        }
+
+        .button-container button:hover {
+            background-color: #000000;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 30px rgb(255, 255, 255);
+        }
+
+        /* Estilo da caixa de informações da conta criada */
+        #accountInfo {
+            background-color: #2f2841;
+            color: #ffffff;
+            border-radius: 25px;
+            padding: 20px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
+            margin: 20px auto;
+            text-align: center;
+            max-width: 400px;
+            transition: background-color 0.3s;
+        }
+
+        /* Estilo para os campos de entrada dentro da caixa de informações da conta criada */
+        #accountInfo .form-group {
+            margin-bottom: 20px;
+        }
+
+        #accountInfo .form-group label {
+            font-size: 20px;
+            display: block;
+            margin-bottom: 10px;
+            text-align: left;
+            color: #fff;
+        }
+
+        #accountInfo .form-group .input-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        #accountInfo .form-group input[type="text"],
+        #accountInfo .form-group input[type="password"],
+        #accountInfo .form-group input[type="date"] {
+            width: 95%;
+            padding: 10px;
+            border-radius: 15px;
+            background-color: #f7ffdcde;
+            color: #000;
+            border: none;
+            outline: none;
+        }
+        
+        /* Estilo para mensagem de erro */
+        .message-box.error-message {
+            background-color: #ff0000;
+            color: #ffffff;
+            border-radius: 15px;
+            padding: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Estilo para mensagem de sucesso */
+        .message-box.success-message {
+            background-color: #00ff00;
+            color: #000000;
+            border-radius: 15px;
+            padding: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra lateral -->
+    <div class="sidebar" id="mySidebar">
+        <!-- Adicione outras opções aqui -->
+        <a href="/dashboard">Início</a>
+        <a href="/ferramentas">Ferramentas</a>
+        <a href="/suporte">Suporte</a>
+        <a href="/planos">Planos</a>
+        <a href="/account">Conta</a>
+        <a href="/admin">Admin</a>
+        <div class="user-info" style="margin-top: 340px;">
+            <p><%= username %></p>
+            <span class="logout-button" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</span>
+        </div>
+    </div>
+
+    <!-- Botão para abrir a barra lateral -->
+    <div class="menu-button" onclick="toggleSidebar()">&#9776;</div>
+
+        <!-- Adicione essas divs para exibir mensagens de erro e sucesso -->
+    <div class="message-box error-message" id="errorMessage" style="display: none;"></div>
+
+    <!-- Conteúdo principal -->
+    <div class="content" id="content">
+        <div class="message-box error-message" id="errorMessage" style="display: none;"></div>
+        <div class="message-box success-message" id="successMessage" style="display: none;"></div>
+        <div class="box admin-options" id="createAccountBox">
+            <!-- Conteúdo da página de criação de usuário aqui -->
+            <h1>Criar Conta</h1>
+            <form class="create-account-form" onsubmit="return false;">
+                <!-- Exibe a mensagem de erro em vermelho -->
+                <div class="form-group">
+                    <label for="username">Nome de Usuário</label>
+                    <input type="text" id="usernameInput" name="username" required>
+                </div>
+                <div class="form-group password-container">
+                    <label for="password">Senha</label>
+                    <div style="position: relative;">
+                        <input type="password" id="password" name="password" required>
+                        <span class="toggle-password" onclick="togglePasswordVisibility()">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="validity">Validade</label>
+                    <input type="date" id="validity" name="validity" required>
+                </div>
+                <div class="button-container">
+                    <button id="createAccountButton" class="admin-button" type="button" onclick="createAccount()">Criar Conta</button>
+                    <!-- Botão para criar um teste grátis -->
+                    <button class="create-free-login-button" type="button" onclick="createFreeLogin()">Teste Grátis</button>
+                    <!-- Botão para voltar à página de admin -->
+                    <button class="admin-button" onclick="backToAdmin()"><i class="fas fa-arrow-left"></i> Voltar</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Caixa de informações da conta criada (inicialmente oculta) -->
+        <div id="accountInfo" class="box admin-options" style="display: none;">
+            <h2>Conta Criada</h2>
+            <p>Nome de Usuário: <span id="accountUsername"></span></p>
+            <p>Senha: <span id="accountPassword"></span></p>
+            <p>Validade: <span id="accountValidity"></span></p>
+            <p>Chave API: <span id="accountApiKey"></span></p>
+            <div class="button-container">
+                <button class="admin-button" onclick="copyAccountInfo()"><i class="fas fa-copy"></i> Copiar</button>
+                <button class="admin-button" onclick="backToCreateAccount()"><i class="fas fa-arrow-left"></i> Voltar</button>
+            </div>
+        </div>
+
+        <!-- Caixa de informações do teste grátis criado (inicialmente oculta) -->
+        <div id="freeLoginInfo" class="box admin-options" style="display: none;">
+            <h2>Teste Grátis Criado</h2>
+            <p>Nome de Usuário: <span id="freeLoginUsername"></span></p>
+            <p>Senha: <span id="freeLoginPassword"></span></p>
+            <p>Validade: <span id="freeLoginValidity"></span></p>
+            <p>Chave API: <span id="freeLoginApiKey"></span></p>
+            <div class="button-container">
+                <button class="admin-button" onclick="copyFreeLoginInfo()"><i class="fas fa-copy"></i> Copiar</button>
+                <button class="admin-button" onclick="backToCreateAccount()"><i class="fas fa-arrow-left"></i> Voltar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Função para alternar a visibilidade da barra lateral
+        function toggleSidebar() {
+            var sidebar = document.getElementById("mySidebar");
+            if (sidebar.style.width === "250px") {
+                sidebar.style.width = "0";
+                document.getElementById("content").style.marginLeft = "0";
+            } else {
+                sidebar.style.width = "250px";
+                document.getElementById("content").style.marginLeft = "250px";
+            }
+        }
+        // Função para alternar a visibilidade da senha
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById("password");
+            const togglePasswordBtn = document.querySelector(".toggle-password");
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                togglePasswordBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            } else {
+                passwordInput.type = "password";
+                togglePasswordBtn.innerHTML = '<i class="fas fa-eye"></i>';
+            }
+        }
+
+        // Função para preencher as informações da conta criada e exibi-las
+        function fillAccountInfo(username, password, validity, apiKey) {
+            const accountUsername = document.getElementById("accountUsername");
+            const accountPassword = document.getElementById("accountPassword");
+            const accountValidity = document.getElementById("accountValidity");
+            const accountApiKey = document.getElementById("accountApiKey");
+
+            accountUsername.textContent = username;
+            accountPassword.textContent = password; // Exibe a senha
+            accountValidity.textContent = validity;
+            accountApiKey.textContent = apiKey;
+
+            // Mostra a caixa "accountInfo" e esconde o formulário "createAccountBox"
+            document.getElementById("accountInfo").style.display = "block";
+            document.getElementById("createAccountBox").style.display = "none";
+        }
+
+        // Função para criar uma conta
+        function createAccount() {
+            // Obtenha os valores dos campos de entrada
+            var username = document.getElementById("usernameInput").value;
+            var password = document.getElementById("password").value;
+            var validity = document.getElementById("validity").value;
+
+            // Faça a validação dos dados aqui (por exemplo, verifique se o nome de usuário é único)
+
+            // Simule o processo de criação da conta
+            setTimeout(function () {
+                // Exiba uma mensagem de sucesso e as informações da conta criada
+                document.getElementById("createAccountBox").style.display = "none";
+                document.getElementById("accountInfo").style.display = "block";
+                document.getElementById("accountUsername").textContent = username;
+                document.getElementById("accountPassword").textContent = password;
+            }, 2000); // Simulando um atraso de 2 segundos
+        }
+
+        // Função para voltar à página de criação de conta
+        function backToCreateAccount() {
+            // Esconder caixas de informações e mostrar o formulário de criação de conta
+            document.getElementById("accountInfo").style.display = "none";
+            document.getElementById("freeLoginInfo").style.display = "none";
+            document.getElementById("createAccountBox").style.display = "block";
+        }
+
+        // Função para criar um teste grátis
+        async function createFreeLogin() {
+            // Substitua esta parte com uma chamada AJAX para criar o teste grátis no servidor
+            // Certifique-se de que o servidor responda com os dados do teste grátis criado
+            const response = await fetch('/create-free-login', {
+                method: 'POST',
+            });
+
+            if (response.ok) {
+                const serverResponse = await response.json();
+                if (serverResponse.success) {
+                    // Preencher informações do teste grátis criado
+                    document.getElementById("freeLoginUsername").textContent = serverResponse.username;
+                    document.getElementById("freeLoginPassword").textContent = serverResponse.password;
+                    document.getElementById("freeLoginValidity").textContent = serverResponse.validity;
+                    document.getElementById("freeLoginApiKey").textContent = serverResponse.apiKey;
+
+                    // Mostrar caixa de informações do teste grátis criado
+                    document.getElementById("freeLoginInfo").style.display = "block";
+                    // Esconder o formulário de criação de conta
+                    document.getElementById("createAccountBox").style.display = "none";
+                } else {
+                    alert("Falha ao criar o teste grátis. Tente novamente.");
+                }
+            } else {
+                alert("Erro na solicitação ao servidor. Tente novamente mais tarde.");
+            }
+        }
+
+        // Função para copiar informações da conta criada
+        function copyAccountInfo() {
+            const accountUsername = document.getElementById("accountUsername").textContent;
+            const accountPassword = document.getElementById("accountPassword").textContent;
+            const accountValidity = document.getElementById("accountValidity").textContent;
+
+            // Lógica para copiar informações para a área de transferência (substitua com chamada real)
+            const copiedText = `Nome de Usuário: ${accountUsername}\nSenha: ${accountPassword}\nValidade: ${accountValidity}`;
+            copyTextToClipboard(copiedText);
+
+            alert("Informações da conta copiadas para a área de transferência.");
+        }
+
+        // Função para copiar informações do teste grátis criado
+        function copyFreeLoginInfo() {
+            const freeLoginUsername = document.getElementById("freeLoginUsername").textContent;
+            const freeLoginPassword = document.getElementById("freeLoginPassword").textContent;
+            const freeLoginValidity = document.getElementById("freeLoginValidity").textContent;
+            const freeLoginApiKey = document.getElementById("freeLoginApiKey").textContent;
+
+            // Lógica para copiar informações para a área de transferência (substitua com chamada real)
+            const copiedText = `Nome de Usuário: ${freeLoginUsername}\nSenha: ${freeLoginPassword}\nValidade: ${freeLoginValidity}\nChave API: ${freeLoginApiKey}`;
+            copyTextToClipboard(copiedText);
+
+            alert("Informações do teste grátis copiadas para a área de transferência.");
+        }
+
+        // Função para copiar texto para a área de transferência (clipboard)
+        function copyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textArea);
+        }
+
+        // Função para voltar à página de criação de conta
+        function backToCreateAccount() {
+            // Esconder caixas de informações e mostrar o formulário de criação de conta
+            document.getElementById("accountInfo").style.display = "none";
+            document.getElementById("freeLoginInfo").style.display = "none";
+            document.getElementById("createAccountBox").style.display = "block";
+        }
+
+        // Função para voltar à página de admin
+        function backToAdmin() {
+            // Redirecionar para a página de admin (substitua com o URL correto)
+            window.location.href = "/admin";
+        }
+
+        // Função para abrir ou fechar a barra lateral
+        function toggleSidebar() {
+            const sidebar = document.getElementById("mySidebar");
+            const content = document.getElementById("content");
+            sidebar.classList.toggle("active");
+            content.classList.toggle("active");
+        }
+
+        // Função para fazer logout
+        function logout() {
+            // Implemente a lógica de logout aqui (substitua com chamada real)
+            alert("Logout realizado com sucesso.");
+            // Redirecionar para a página de login (substitua com o URL correto)
+            window.location.href = "/login";
+        }
+        // Função para limpar os campos do formulário
+        function clearFormFields() {
+            document.getElementById("usernameInput").value = "";
+            document.getElementById("password").value = "";
+            document.getElementById("validity").value = "";
+        }
+
+        // Função para executar quando a página é carregada ou atualizada
+        window.onload = function() {
+            // Limpar os campos do formulário
+            clearFormFields();
+        };
+
+        // Limpar os campos do formulário quando a página é atualizada (navegação)
+        window.addEventListener('beforeunload', function() {
+            clearFormFields();
+        });
+    </script>
+</body>
+</html>
