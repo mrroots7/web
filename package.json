@@ -2,9 +2,10 @@
   "name": "nsite",
   "version": "1.0.0",
   "description": "",
-  "main": "node app.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node app"
+    "test": "node app.js",
+    "start": "sh iniciar.sh"
   },
   "keywords": [],
   "author": "",
